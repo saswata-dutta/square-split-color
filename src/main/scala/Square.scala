@@ -1,4 +1,5 @@
 sealed trait Square
+// each square is solid black/white or split into 4 quads
 final case class Split(s1: Square, s2: Square, s3: Square, s4: Square) extends Square
 case object Black extends Square
 case object White extends Square
