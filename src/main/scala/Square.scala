@@ -1,26 +1,26 @@
 sealed trait Square
 final case class Split(s1: Square, s2: Square, s3: Square, s4: Square) extends Square
-final case class Whole(isBlack: Boolean) extends Square
+case object Black extends Square
+case object White extends Square
 
 object Square {
 
   def merge(lhs: Square, rhs: Square): Square =
     (lhs, rhs) match {
-      case (a: Whole, b: Whole) => Whole(a.isBlack || b.isBlack)
-      case (a: Whole, b: Split) => mergeWhole(a, b)
-      case (b: Split, a: Whole) => mergeWhole(a, b)
+      case (Black, _)           => Black
+      case (_, Black)           => Black
+      case (White, other)       => coalesce(other)
+      case (other, White)       => coalesce(other)
       case (a: Split, b: Split) => mergeSplit(a, b)
     }
-
-  def mergeWhole(a: Whole, b: Split): Square =
-    coalesce(Split(merge(a, b.s1), merge(a, b.s2), merge(a, b.s3), merge(a, b.s4)))
 
   def mergeSplit(a: Split, b: Split): Square =
     coalesce(Split(merge(a.s1, b.s1), merge(a.s2, b.s2), merge(a.s3, b.s3), merge(a.s4, b.s4)))
 
-  def coalesce(s: Split): Square =
+  def coalesce(s: Square): Square =
     s match {
-      case Split(Whole(a), Whole(b), Whole(c), Whole(d)) if a == b && a == c && a == d => Whole(a)
-      case _                                                                           => s
+      case Split(Black, Black, Black, Black) => Black
+      case Split(White, White, White, White) => White
+      case _                                 => s
     }
 }
